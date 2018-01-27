@@ -13,6 +13,9 @@ Command =
   / "#explain" expression:Expression {
     return new Commands.ExplainCommand(expression);
   }
+  / ident:Ident _ ":" _ expression:Expression {
+    return new Commands.LetCommand(ident, expression);
+  }
   / expression:Expression {
     return new Commands.ExpressionCommand(expression);
   }
@@ -40,6 +43,9 @@ Factor
 
 Integer "integer"
   = _ [0-9]+ { return new Expressions.Number(parseInt(text(), 10)); }
+
+Ident "ident"
+  = [a-zA-Z_][0-9a-zA-Z_]* { return text(); }
 
 _ "whitespace"
   = [ \t\n\r]*

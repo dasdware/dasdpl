@@ -4,8 +4,9 @@ import { createInterface } from 'readline';
 import { Runtime } from './runtime';
 import { calculateValue } from './ast/visitors/value-calculator';
 import { ExpressionCommand, CommandHandler, ExitCommand, SymbolsCommand, 
-    ErrorCommand, ExplainCommand } from './ast/commands';
+    ErrorCommand, ExplainCommand, LetCommand } from './ast/commands';
 import { expressionToTree } from './ast/visitors/expression-tree';
+import { Expression } from './ast/expressions';
 
 class RuntimeConsole implements CommandHandler {
     private readLine = createInterface(process.stdin, process.stdin);
@@ -23,6 +24,9 @@ class RuntimeConsole implements CommandHandler {
         this.runtime.execute(line);
     }
 
+    showValue(expression: Expression) {
+        console.log(calculateValue(expression).description.yellow);
+    }
 
     handleErrorCommand(command: ErrorCommand) {
         const message = command.message + '\n  ' 
@@ -44,7 +48,12 @@ class RuntimeConsole implements CommandHandler {
     }
 
     handleExpressionCommand(command: ExpressionCommand) {
-        console.log(calculateValue(command.expression).description.green);
+        this.showValue(command.expression);
+        this.readLine.prompt();
+    }
+    
+    handleLetCommand(command: LetCommand) {
+        this.showValue(command.expression);
         this.readLine.prompt();
     }
 
