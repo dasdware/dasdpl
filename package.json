@@ -1,0 +1,31 @@
+{
+  "name": "dasdpl",
+  "version": "0.0.1",
+  "description": "Dasdware Programming Language",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc",
+    "start": "node ./dist/index.js",
+    "build-parser": "pegjs --plugin ./node_modules/ts-pegjs --extra-options-file pegconfig.json -o ./src/parser.ts grammar/dasdpl.pegjs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "dasdpl"
+  },
+  "author": "dasdware",
+  "license": "ISC",
+  "dependencies": {
+    "@types/colors": "^1.1.3",
+    "@types/es6-shim": "^0.31.35",
+    "@types/node": "^8.5.7",
+    "@types/pegjs": "^0.10.0",
+    "ascii-table": "0.0.9",
+    "ascii-tree": "^0.3.0",
+    "colors": "^1.1.2",
+    "es6-shim": "^0.35.3",
+    "pegjs": "^0.10.0",
+    "ts-pegjs": "^0.1.13",
+    "typescript": "^2.6.2"
+  }
+}
