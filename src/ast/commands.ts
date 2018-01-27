@@ -42,6 +42,17 @@ export class ExpressionCommand implements Command {
     }
 }
 
+export class LetCommand implements Command {
+    constructor(
+        public ident: string,
+        public expression: Expression
+    ) { }
+
+    processHandler(handler: CommandHandler) {
+        handler.handleLetCommand(this);
+    }
+}
+
 export class SymbolsCommand implements Command {
     processHandler(handler: CommandHandler) {
         handler.handleSymbolsCommand(this);
@@ -53,5 +64,6 @@ export interface CommandHandler {
     handleExitCommand(command: ExitCommand);
     handleExplainCommand(command: ExplainCommand);
     handleExpressionCommand(command: ExpressionCommand);
+    handleLetCommand(command: LetCommand);
     handleSymbolsCommand(command: SymbolsCommand);
 }

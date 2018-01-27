@@ -3,7 +3,7 @@ import { parse } from './parser';
 import { SymbolTable } from './symbol-table';
 import { Number } from './ast/expressions';
 import { Command, ExpressionCommand, CommandHandler, ErrorCommand, 
-    ExitCommand, ExplainCommand, SymbolsCommand } from './ast/commands';
+    ExitCommand, ExplainCommand, SymbolsCommand, LetCommand } from './ast/commands';
 
 function createDefaultSymbolTable() {
    const symbolTable = new SymbolTable();
@@ -12,7 +12,6 @@ function createDefaultSymbolTable() {
 }
 
 class RuntimeCommandHandler implements CommandHandler {
-
     constructor(
         private _runtime: Runtime
     ) { }
@@ -32,6 +31,10 @@ class RuntimeCommandHandler implements CommandHandler {
     handleExpressionCommand(command: ExpressionCommand) {
         // nothing to do
         this._runtime.symbolTable.put('#', command.expression);
+    }
+
+    handleLetCommand(command: LetCommand) {
+        this._runtime.symbolTable.put(command.ident, command.expression);
     }
 
     handleSymbolsCommand(command: SymbolsCommand) {
