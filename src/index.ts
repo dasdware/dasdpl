@@ -25,7 +25,11 @@ class RuntimeConsole implements CommandHandler {
     }
 
     showValue(expression: Expression) {
-        console.log(calculateValue(expression).description.yellow);
+        console.log(
+            calculateValue(
+                expression, 
+                this.runtime.symbolTable)
+            .description.yellow);
     }
 
     handleErrorCommand(command: ErrorCommand) {

@@ -48,7 +48,7 @@ export class SymbolTable {
         for (const entry of this.entries) {
             asciiTable.addRow(
                 entry.ident, 
-                calculateValue(entry.expression).description);
+                calculateValue(entry.expression, this).description);
         }
         return asciiTable.toString();
     }

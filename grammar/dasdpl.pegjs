@@ -10,7 +10,7 @@ Command =
   / "#symbols" {
     return new Commands.SymbolsCommand();
   }
-  / "#explain" expression:Expression {
+  / "#explain" _ expression:Expression {
     return new Commands.ExplainCommand(expression);
   }
   / ident:Ident _ ":" _ expression:Expression {
@@ -40,6 +40,10 @@ Term
 Factor
   = "(" _ expr:Expression _ ")" { return expr; }
   / Integer
+  / Symbol
+
+Symbol
+  = _ ident:Ident { return new Expressions.Symbol(ident); }
 
 Integer "integer"
   = _ [0-9]+ { return new Expressions.Number(parseInt(text(), 10)); }

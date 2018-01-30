@@ -63,5 +63,8 @@ class AsciiTreeVisitor implements ExpressionVisitor<string> {
             expression.right
         );
     }
-    
+
+    visitSymbol(expression: Expressions.Symbol) {
+        return `${this.prefix()}Symbol<${expression.name}>\n`;   
+    }
 }

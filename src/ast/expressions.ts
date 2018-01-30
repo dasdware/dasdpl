@@ -111,3 +111,19 @@ export class Divide extends Binary {
     }
 }
 
+
+export class Symbol extends Base {
+    constructor(
+        name: string
+    ) {
+        super('Symbol', name);
+    }
+
+    get name() {
+        return <string>this.value;
+    }
+
+    accept<T>(visitor: ExpressionVisitor<T>): T {
+        return visitor.visitSymbol(this);
+    }
+}
