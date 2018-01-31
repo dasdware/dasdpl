@@ -15,8 +15,8 @@
 "use strict";
 
 // import expressions and commands
-import * as Expressions from './ast/expressions';
-import * as Commands from './ast/commands';
+import * as Expressions from '../ast/expressions';
+import * as Commands from '../ast/commands';
 export class SyntaxError extends Error {
   public static buildMessage(expected: string, found: string) {
     const DESCRIBE_EXPECTATION_FNS = {

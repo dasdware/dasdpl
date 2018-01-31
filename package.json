@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node ./dist/index.js",
-    "build-parser": "pegjs --plugin ./node_modules/ts-pegjs --extra-options-file pegconfig.json -o ./src/parser.ts grammar/dasdpl.pegjs",
+    "build-parser": "pegjs --plugin ./node_modules/ts-pegjs --extra-options-file pegconfig.json -o ./src/parser/parser-impl.ts grammar/dasdpl.pegjs",
     "build-application": "tsc",
     "build": "npm run build-parser && npm run build-application"
   },

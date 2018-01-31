@@ -1,6 +1,6 @@
-import { parse } from './parser';
-
 import { SymbolTable } from './symbol-table';
+import { Parser } from './parser/parser';
+
 import { Number } from './ast/expressions';
 import { Command, ExpressionCommand, CommandHandler, ErrorCommand, 
     ExitCommand, ExplainCommand, SymbolsCommand, LetCommand } from './ast/commands';
@@ -48,7 +48,8 @@ export class Runtime {
 
     constructor(
         handler: CommandHandler = null,
-        public symbolTable: SymbolTable = createDefaultSymbolTable()
+        public symbolTable: SymbolTable = createDefaultSymbolTable(),
+        public parser: Parser = new Parser(symbolTable)
     ) { 
         this._commandHandlers.push(new RuntimeCommandHandler(this));
         if (handler) {
@@ -59,7 +60,7 @@ export class Runtime {
     execute(line: string) {
         let command: Command;
         try {
-            command = parse(line, { symbolTable: this.symbolTable }) as Command;
+            command = this.parser.parse(line);
         } catch (error) {
             command = new ErrorCommand(error.message, line, error.location.start.offset);
         }
