@@ -43,7 +43,12 @@ Factor
   / Symbol
 
 Symbol
-  = _ ident:Ident { return new Expressions.Symbol(ident); }
+  = _ ident:Ident { 
+        if (!options.symbolTable.has(ident)) {
+          error(`Unknown symbol '${ident}'`);
+        }
+        return new Expressions.Symbol(ident); 
+    }
 
 Integer "integer"
   = _ [0-9]+ { return new Expressions.Number(parseInt(text(), 10)); }

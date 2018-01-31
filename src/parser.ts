@@ -196,7 +196,12 @@ function peg$parse(input, options) {
   const peg$c25 = ")";
   const peg$c26 = peg$literalExpectation(")", false);
   const peg$c27 = function(expr) { return expr; };
-  const peg$c28 = function(ident) { return new Expressions.Symbol(ident); };
+  const peg$c28 = function(ident) { 
+          if (!options.symbolTable.has(ident)) {
+            error(`Unknown symbol '${ident}'`);
+          }
+          return new Expressions.Symbol(ident); 
+      };
   const peg$c29 = peg$otherExpectation("integer");
   const peg$c30 = /^[0-9]/;
   const peg$c31 = peg$classExpectation([["0", "9"]], false, false);

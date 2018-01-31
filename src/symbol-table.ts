@@ -28,6 +28,11 @@ export class SymbolTable {
         return null;
     }
 
+    has(ident: string) {
+        return this._expressions.has(ident)
+            || (this._parent && this._parent.has(ident));
+    }
+
     put(ident: string, expression: Expression) {
         this._expressions.set(ident, expression);
     }
