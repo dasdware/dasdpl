@@ -59,7 +59,7 @@ export class Runtime {
     execute(line: string) {
         let command: Command;
         try {
-            command = parse(line, {}) as Command;
+            command = parse(line, { symbolTable: this.symbolTable }) as Command;
         } catch (error) {
             command = new ErrorCommand(error.message, line, error.location.start.offset);
         }

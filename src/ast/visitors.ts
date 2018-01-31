@@ -7,6 +7,7 @@ export interface ExpressionVisitor<T> {
     visitSubtract(expression: Expressions.Subtract): T;
     visitMultiply(expression: Expressions.Multiply): T;
     visitDivide(expression: Expressions.Divide): T;
+    visitSymbol(expression: Expressions.Symbol): T;
 }
 
 
@@ -31,6 +32,10 @@ export class ToStringVisitor implements ExpressionVisitor<string> {
     visitDivide(expression: Expressions.Divide) {
         return `Divide<${expression.left.accept(this)}, ${expression.right.accept(this)}>`;
     }
+
+    visitSymbol(expression: Expressions.Symbol) {
+        return `Symbol<${expression.name}>`;
+    }
 }
 
 export class CalculateVisitor implements ExpressionVisitor<number> {
@@ -49,5 +54,8 @@ export class CalculateVisitor implements ExpressionVisitor<number> {
     }
     visitDivide(expression: Expressions.Divide): number {
         return expression.left.accept(this) / expression.right.accept(this);
+    }
+    visitSymbol(expression: Expressions.Symbol) {
+        return NaN;
     }
 }

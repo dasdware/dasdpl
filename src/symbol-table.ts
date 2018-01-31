@@ -28,6 +28,11 @@ export class SymbolTable {
         return null;
     }
 
+    has(ident: string) {
+        return this._expressions.has(ident)
+            || (this._parent && this._parent.has(ident));
+    }
+
     put(ident: string, expression: Expression) {
         this._expressions.set(ident, expression);
     }
@@ -48,7 +53,7 @@ export class SymbolTable {
         for (const entry of this.entries) {
             asciiTable.addRow(
                 entry.ident, 
-                calculateValue(entry.expression).description);
+                calculateValue(entry.expression, this).description);
         }
         return asciiTable.toString();
     }

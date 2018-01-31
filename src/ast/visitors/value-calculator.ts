@@ -1,5 +1,6 @@
 import {ExpressionVisitor} from '../visitors';
 import * as Expressions from '../expressions';
+import { SymbolTable } from '../../symbol-table';
 
 
 export interface Value {
@@ -23,11 +24,15 @@ class NumberValue implements Value {
     }
 }
 
-export function calculateValue(expression: Expressions.Expression) {
-    return expression.accept(new ValueInfoVisitor());
+export function calculateValue(expression: Expressions.Expression, symbolTable: SymbolTable) {
+    return expression.accept(new ValueInfoVisitor(symbolTable));
 }
 
 class ValueInfoVisitor implements ExpressionVisitor<Value> {
+
+    constructor(
+        private _symbolTable: SymbolTable
+    ) { }
 
     visitNumber(expression: Expressions.Number): Value {
         return new NumberValue(expression.value);
@@ -65,4 +70,11 @@ class ValueInfoVisitor implements ExpressionVisitor<Value> {
             ((left, right) => left / right));
     }
     
+    visitSymbol(expression: Expressions.Symbol) {
+        const targetExpression = this._symbolTable.get(expression.name);
+        if (targetExpression) {
+            return targetExpression.accept(this);
+        }
+        return new NumberValue(NaN);
+    }
 }
