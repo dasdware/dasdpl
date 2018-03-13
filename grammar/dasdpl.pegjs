@@ -30,7 +30,7 @@ Expression
     }
 
 Term
-  = head:Factor tail:(_ ("*" / "/") _ Factor)* {
+  = head:Factor tail:( _ ("*" / "/") _ Factor)* {
       return tail.reduce(function(result, element) {
         if (element[1] === "*") { return new Expressions.Multiply(result, element[3]); }
         if (element[1] === "/") { return new Expressions.Divide(result, element[3]); }
@@ -43,7 +43,7 @@ Factor
   / Symbol
 
 Symbol
-  = _ ident:Ident { 
+  = ident:Ident { 
         if (!options.symbolTable.has(ident)) {
           error(`Unknown symbol '${ident}'`);
         }
@@ -51,7 +51,7 @@ Symbol
     }
 
 Integer "integer"
-  = _ [0-9]+ { return new Expressions.Number(parseInt(text(), 10)); }
+  = [0-9]+ { return new Expressions.Number(parseInt(text(), 10)); }
 
 Ident "ident"
   = [a-zA-Z_][0-9a-zA-Z_]* { return text(); }
