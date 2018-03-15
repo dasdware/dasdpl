@@ -1,4 +1,5 @@
 import {ExpressionVisitor} from './visitors';
+import {Type} from './types';
 
 export interface Expression {    
     type: string;
@@ -111,7 +112,6 @@ export class Divide extends Binary {
     }
 }
 
-
 export class Symbol extends Base {
     constructor(
         name: string
@@ -125,5 +125,25 @@ export class Symbol extends Base {
 
     accept<T>(visitor: ExpressionVisitor<T>): T {
         return visitor.visitSymbol(this);
+    }
+}
+
+export class Parameter {
+    constructor(
+        public name: string,
+        public type: Type
+    ) {}
+}
+
+export class Function extends Base {
+    constructor(
+        public parameters: Parameter[],
+        public expression: Expression
+    ) {
+        super('Function', '');
+    }
+
+    accept<T>(visitor: ExpressionVisitor<T>): T {
+        return visitor.visitFunction(this);
     }
 }

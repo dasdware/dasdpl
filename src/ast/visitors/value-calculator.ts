@@ -1,50 +1,29 @@
 import {ExpressionVisitor} from '../visitors';
 import * as Expressions from '../expressions';
+import * as Values from '../values';
 import { SymbolTable } from '../../symbol-table';
 
-
-export interface Value {
-    type: string;
-    value: any;
-
-    description: string;
-}
-
-class NumberValue implements Value {
-    constructor(
-        public value: number
-    ) { }
-
-    get type() {
-        return 'Number';
-    }
-
-    get description() {
-        return `${this.type}<${this.value}>`;
-    }
-}
 
 export function calculateValue(expression: Expressions.Expression, symbolTable: SymbolTable) {
     return expression.accept(new ValueInfoVisitor(symbolTable));
 }
 
-class ValueInfoVisitor implements ExpressionVisitor<Value> {
-
+class ValueInfoVisitor implements ExpressionVisitor<Values.Value> {
     constructor(
         private _symbolTable: SymbolTable
     ) { }
 
-    visitNumber(expression: Expressions.Number): Value {
-        return new NumberValue(expression.value);
+    visitNumber(expression: Expressions.Number): Values.Value {
+        return new Values.NumberValue(expression.value);
     }
 
     calculateBinary(expression: Expressions.Binary,
-            calculator: (left: number, right: number) => number): Value {
+            calculator: (left: number, right: number) => number): Values.Value {
         const left = expression.left.accept(this);
         const right = expression.right.accept(this);
 
-        if ((left instanceof NumberValue) && (right instanceof NumberValue)) {
-            return new NumberValue(calculator(left.value, right.value));
+        if ((left instanceof Values.NumberValue) && (right instanceof Values.NumberValue)) {
+            return new Values.NumberValue(calculator(left.content, right.content));
         } else {
             throw new Error('Invalid valid types for binary calculation operation.');
         }
@@ -75,6 +54,10 @@ class ValueInfoVisitor implements ExpressionVisitor<Value> {
         if (targetExpression) {
             return targetExpression.accept(this);
         }
-        return new NumberValue(NaN);
+        return new Values.NumberValue(NaN);
+    }
+
+    visitFunction(expression: Expressions.Function): Values.Value {
+        return new Values.FunctionValue(expression);
     }
 }

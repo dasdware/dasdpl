@@ -7,4 +7,5 @@ export interface ExpressionVisitor<T> {
     visitMultiply(expression: Expressions.Multiply): T;
     visitDivide(expression: Expressions.Divide): T;
     visitSymbol(expression: Expressions.Symbol): T;
+    visitFunction(expression: Expressions.Function): T;
 }
