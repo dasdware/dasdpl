@@ -8,7 +8,14 @@ export function calculateValue(expression: Expressions.Expression, symbolTable: 
     return expression.accept(new ValueInfoVisitor(symbolTable));
 }
 
+export function calculateType(expression: Expressions.Expression, symbolTable: SymbolTable) {
+    return calculateValue(expression, symbolTable).type;
+}
+
 class ValueInfoVisitor implements ExpressionVisitor<Values.Value> {
+
+
+
     constructor(
         private _symbolTable: SymbolTable
     ) { }
@@ -29,27 +36,27 @@ class ValueInfoVisitor implements ExpressionVisitor<Values.Value> {
         }
     }
 
-    visitAdd(expression: Expressions.Add) {
+    visitAdd(expression: Expressions.Add): Values.Value {
         return this.calculateBinary(expression,
             ((left, right) => left + right));
     }
 
-    visitSubtract(expression: Expressions.Subtract) {
+    visitSubtract(expression: Expressions.Subtract): Values.Value {
         return this.calculateBinary(expression,
             ((left, right) => left - right));
     }
 
-    visitMultiply(expression: Expressions.Multiply) {
+    visitMultiply(expression: Expressions.Multiply): Values.Value {
         return this.calculateBinary(expression,
             ((left, right) => left * right));
     }
 
-    visitDivide(expression: Expressions.Divide) {
+    visitDivide(expression: Expressions.Divide): Values.Value {
         return this.calculateBinary(expression,
             ((left, right) => left / right));
     }
     
-    visitSymbol(expression: Expressions.Symbol) {
+    visitSymbol(expression: Expressions.Symbol): Values.Value {
         const targetExpression = this._symbolTable.get(expression.name);
         if (targetExpression) {
             return targetExpression.accept(this);
@@ -59,5 +66,21 @@ class ValueInfoVisitor implements ExpressionVisitor<Values.Value> {
 
     visitFunction(expression: Expressions.Function): Values.Value {
         return new Values.FunctionValue(expression);
+    }
+
+    visitFunctionCall(expression: Expressions.FunctionCall): Values.Value {
+        const func = this._symbolTable.get(expression.name) as Expressions.Function;
+
+        this._symbolTable = new SymbolTable(this._symbolTable);
+        for (let i = 0; i < func.parameters.length; ++i) {
+            this._symbolTable.put(func.parameters[i].name, expression.parameters[i]);
+        }
+
+        try {
+            return func.expression.accept(this);
+        } finally {
+            this._symbolTable = this._symbolTable.parent;
+        }
+        
     }
 }

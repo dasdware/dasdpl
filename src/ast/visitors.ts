@@ -8,4 +8,5 @@ export interface ExpressionVisitor<T> {
     visitDivide(expression: Expressions.Divide): T;
     visitSymbol(expression: Expressions.Symbol): T;
     visitFunction(expression: Expressions.Function): T;
+    visitFunctionCall(expression: Expressions.FunctionCall): T;
 }

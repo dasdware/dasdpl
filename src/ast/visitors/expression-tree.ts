@@ -67,7 +67,11 @@ class AsciiTreeVisitor implements ExpressionVisitor<string> {
         return `${this.prefix()}Symbol<${expression.name}>\n`; 
     }
 
-    visitFunction(expression: Expressions.Function): string {
+    visitFunction(expression: Expressions.Function) {
         return `${this.prefix()}Function\n`;   
+    }
+
+    visitFunctionCall(expression: Expressions.FunctionCall) {
+        return '';
     }
 }

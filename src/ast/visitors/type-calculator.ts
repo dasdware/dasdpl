@@ -65,4 +65,8 @@ class TypeInfoVisitor implements ExpressionVisitor<Type> {
         this.functionParameters = expression.parameters;
         return expression.expression.accept(this);
     }
+
+    visitFunctionCall(expression: Expressions.FunctionCall): Type {
+        return NumberType.getInstance();
+    }
 }

@@ -147,3 +147,16 @@ export class Function extends Base {
         return visitor.visitFunction(this);
     }
 }
+
+export class FunctionCall extends Base {
+    constructor(
+        public name: string,
+        public parameters: Expression[]
+    ) { 
+        super('FunctionCall', '');
+    }
+
+    accept<T>(visitor: ExpressionVisitor<T>): T {
+        return visitor.visitFunctionCall(this);
+    }
+}

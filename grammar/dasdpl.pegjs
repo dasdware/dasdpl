@@ -40,7 +40,7 @@ Term
 Factor
   = "(" _ expr:Expression _ ")" { return expr; }
   / Integer
-  / Symbol
+  / SymbolOrFunctionCall
 
 Symbol
   = ident:Ident { 
@@ -49,6 +49,45 @@ Symbol
         }
         return new Expressions.Symbol(ident); 
     }
+
+ExpressionList 
+  = firstParam:Expression _ restParams:("," _ Expression)* {
+    return [].concat(firstParam).concat(
+      restParams.map(e => e[2]));
+  }
+
+SymbolOrFunctionCall
+  = symbol:Symbol parameters:("(" _ ExpressionList? _ ")")? {
+    if (!parameters) {
+      return symbol;
+    } else {
+      let params = [];
+      if (parameters[2]) {
+        params = parameters[2];
+      }
+
+      // check if the symbol resolves to a function
+      const targetFunction = options.symbolTable.get(symbol.name);
+      if (targetFunction.type !== 'Function') {
+        error(`${symbol.name} is not a function`);
+      }
+
+      // check parameter count
+      if (targetFunction.parameters.length !== params.length) {
+        error(`Function ${symbol.name} expects ${targetFunction.parameters.length}, ${params.length} given`);
+      }
+
+      // check parameter types
+      const paramTypes = params.map(param => calculateType(param, options.symbolTable));
+      for (let i = 0; i < paramTypes.length; ++i) {
+        if (paramTypes[i] !== targetFunction.parameters[i].type) {
+          error(`expected ${targetFunction.parameters[i].type.name} as parameter #${i} for function ${symbol.name}, ${paramTypes[i].name} given`);
+        }
+      }
+
+      return new Expressions.FunctionCall(symbol.name, params);
+    }
+  }
 
 Integer "integer"
   = [0-9]+ { return new Expressions.Number(parseInt(text(), 10)); }
