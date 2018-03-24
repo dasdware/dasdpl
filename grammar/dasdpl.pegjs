@@ -10,15 +10,19 @@ Command =
   / "#symbols" {
     return new Commands.SymbolsCommand();
   }
-  / "#explain" _ expression:Expression {
+  / "#explain" _ expression:RootExpression {
     return new Commands.ExplainCommand(expression);
   }
-  / ident:Ident _ ":" _ expression:Expression {
+  / ident:Ident _ ":" _ expression:RootExpression {
     return new Commands.LetCommand(ident, expression);
   }
-  / expression:Expression {
+  / expression:RootExpression {
     return new Commands.ExpressionCommand(expression);
   }
+
+RootExpression =
+  FunctionDefinition
+  / Expression
 
 Expression
   = head:Term tail:(_ ("+" / "-") _ Term)* {
@@ -88,6 +92,39 @@ SymbolOrFunctionCall
       return new Expressions.FunctionCall(symbol.name, params);
     }
   }
+
+NumberType
+  = "Number" { return Types.NumberType.getInstance() }
+
+Type 
+  = NumberType
+
+Parameter
+  = ident:Ident _ ":" _ type:Type {
+    return new Expressions.Parameter(ident, type);
+  }
+
+ParameterList
+  = firstParam:Parameter _ restParams:("," _ Parameter)* {
+    return [].concat(firstParam).concat(
+      restParams.map(e => e[2]));
+  }
+
+FunctionDefinition
+  = parameters:("(" _ parameters:ParameterList? _ ")"  {
+        options.symbolTable = new SymbolTable(options.symbolTable);
+        for (let param of parameters) {
+          options.symbolTable.put(param.name, param.type.defaultValue);
+        }
+        return parameters;
+      })  
+    _ "->" _ expression:Expression {
+      try {
+        return new Expressions.Function(parameters, expression);
+      } finally {
+        options.symbolTable = options.symbolTable.parent;
+      }
+    }
 
 Integer "integer"
   = [0-9]+ { return new Expressions.Number(parseInt(text(), 10)); }

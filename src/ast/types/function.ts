@@ -1,13 +1,19 @@
 import { Type } from "../types";
-import { Parameter, Expression } from "../expressions";
-import { Value } from "../values";
-import { calculateType } from '../visitors/type-calculator';
+import { Parameter, Expression, Function } from "../expressions";
+import { Value, FunctionValue } from "../values";
+import { calculateType } from '../visitors/value-calculator';
+import { SymbolTable } from "../../symbol-table";
 
 export class FunctionType implements Type {
+
+    defaultValue: Value;
+
     constructor(
         public parameters: Parameter[],
         public result: Type
-    ) { }
+    ) { 
+        this.defaultValue = new FunctionValue(this);
+    }
 
     get name() {
         return 'Function' + '[' + this.signature + ']';
@@ -32,7 +38,7 @@ export class FunctionType implements Type {
     }
 
 
-    static getInstance(parameters: Parameter[], expression: Expression) {
-        return new FunctionType(parameters, calculateType(expression));
+    static getInstance(parameters: Parameter[], expression: Expression, symbolTable: SymbolTable) {
+        return new FunctionType(parameters, calculateType(expression, symbolTable));
     }
 }

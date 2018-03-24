@@ -2,6 +2,7 @@ import { Function } from "./expressions";
 import { Type } from "./types";
 import { NumberType } from './types/number';
 import { FunctionType } from './types/function';
+import { SymbolTable } from "../symbol-table";
 
 export interface Value {
     type: Type;
@@ -29,12 +30,21 @@ export class NumberValue extends BaseValue {
     }
 }
 
+export class FunctionDescriptor {
+    constructor(
+        public func: Function,
+        public symbolTable: SymbolTable
+    ) {}
+}
+
 export class FunctionValue extends BaseValue {
     constructor(
-        public value: Function
+        info: FunctionDescriptor | FunctionType,
     ) {
         super(
-            FunctionType.getInstance(value.parameters, value),
+            (info instanceof FunctionDescriptor)
+                ? FunctionType.getInstance(info.func.parameters, info.func.expression, info.symbolTable)
+                : info,
             undefined
         );
     }

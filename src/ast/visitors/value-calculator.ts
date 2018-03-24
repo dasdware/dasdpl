@@ -13,9 +13,7 @@ export function calculateType(expression: Expressions.Expression, symbolTable: S
 }
 
 class ValueInfoVisitor implements ExpressionVisitor<Values.Value> {
-
-
-
+    
     constructor(
         private _symbolTable: SymbolTable
     ) { }
@@ -65,7 +63,8 @@ class ValueInfoVisitor implements ExpressionVisitor<Values.Value> {
     }
 
     visitFunction(expression: Expressions.Function): Values.Value {
-        return new Values.FunctionValue(expression);
+        return new Values.FunctionValue(
+            new Values.FunctionDescriptor(expression, this._symbolTable));
     }
 
     visitFunctionCall(expression: Expressions.FunctionCall): Values.Value {

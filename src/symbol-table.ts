@@ -55,7 +55,6 @@ export class SymbolTable {
         const asciiTable = asciitable.factory();
         asciiTable.setHeading('Ident', 'Expression');
         for (const entry of this.entries) {
-            console.log(entry.ident);
             asciiTable.addRow(
                 entry.ident, 
                 calculateValue(entry.expression, this).description);
