@@ -9,4 +9,5 @@ export interface ExpressionVisitor<T> {
     visitSymbol(expression: Expressions.Symbol): T;
     visitFunction(expression: Expressions.Function): T;
     visitFunctionCall(expression: Expressions.FunctionCall): T;
+    visitNativeFunction(expression: Expressions.NativeFunction): T;
 }

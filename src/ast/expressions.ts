@@ -1,5 +1,6 @@
 import {ExpressionVisitor} from './visitors';
 import {Type} from './types';
+import { Value } from './values';
 
 export interface Expression {    
     type: string;
@@ -158,5 +159,22 @@ export class FunctionCall extends Base {
 
     accept<T>(visitor: ExpressionVisitor<T>): T {
         return visitor.visitFunctionCall(this);
+    }
+}
+
+export interface NativeFunctionCallback {
+    (parameters: Value[]): Value;
+}
+
+export class NativeFunction extends Base {
+    constructor(
+        public callback: NativeFunctionCallback
+    ) {
+        super('NativeFunction', '');
+    }
+
+
+    accept<T>(visitor: ExpressionVisitor<T>): T {
+        throw new Error("Method not implemented.");
     }
 }

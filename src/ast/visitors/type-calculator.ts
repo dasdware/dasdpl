@@ -9,6 +9,10 @@ export function calculateType(expression: Expressions.Expression)  {
 
 class TypeInfoVisitor implements ExpressionVisitor<Type> {
 
+    visitNativeFunction(expression: Expressions.NativeFunction): Type {
+        throw new Error("Method not implemented.");
+    }
+    
     private functionParameters: Expressions.Parameter[] = [];
 
     private areCalculationCompatible(left: Type, right: Type) {

@@ -74,6 +74,7 @@ class ValueInfoVisitor implements ExpressionVisitor<Values.Value> {
         for (let i = 0; i < func.parameters.length; ++i) {
             this._symbolTable.put(func.parameters[i].name, expression.parameters[i]);
         }
+        this._symbolTable.put('#currentFunction', func);
 
         try {
             return func.expression.accept(this);
@@ -82,4 +83,11 @@ class ValueInfoVisitor implements ExpressionVisitor<Values.Value> {
         }
         
     }
+
+    visitNativeFunction(expression: Expressions.NativeFunction): Values.Value {
+        const func = this._symbolTable.get('#currentFunction') as Expressions.Function;
+        return new Values.NumberValue(0);
+    }
+
+
 }
