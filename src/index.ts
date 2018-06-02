@@ -9,7 +9,7 @@ import { expressionToTree } from './ast/visitors/expression-tree';
 import { Expression } from './ast/expressions';
 
 class RuntimeConsole implements CommandHandler {
-    private readLine = createInterface(process.stdin, process.stdin);
+    private readLine = createInterface(process.stdin, process.stdout);
     private runtime = new Runtime(this);
 
     constructor(
