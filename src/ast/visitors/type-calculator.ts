@@ -59,9 +59,9 @@ class TypeInfoVisitor implements ExpressionVisitor<Type> {
     }
 
     visitSymbol(expression: Expressions.Symbol): Type {
-        let target = this._symbols.get(expression.value);
+        let target = this._symbols.get(expression.name);
         if (!target) {
-            throw new Error(`Unknown symbol '${expression.value}'`);
+            throw new Error(`Unknown symbol '${expression.name}'`);
         }
 
         return target.accept(this);
