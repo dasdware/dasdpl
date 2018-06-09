@@ -47,6 +47,10 @@ export class SymbolTable {
             .sort((a, b) => a.ident.localeCompare(b.ident));
     }
 
+    get parent() {
+        return this._parent;
+    }
+
     toString(): string {
         const asciiTable = asciitable.factory();
         asciiTable.setHeading('Ident', 'Expression');

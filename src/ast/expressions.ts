@@ -1,7 +1,9 @@
 import {ExpressionVisitor} from './visitors';
+import {Type} from './types';
+import { Value } from './values';
 
 export interface Expression {    
-    type: string;
+    typeCaption: string;
     value: any;
 
     accept<T>(visitor: ExpressionVisitor<T>): T;
@@ -9,15 +11,14 @@ export interface Expression {
 
 abstract class Base implements Expression {
 
-
     constructor(
-        private _type: string,
+        private _typeCaption: string,
         private _value: any
     ) {}
 
     
-    get type() {
-        return this._type;
+    get typeCaption() {
+        return this._typeCaption;
     }
 
     get value() {
@@ -111,7 +112,6 @@ export class Divide extends Binary {
     }
 }
 
-
 export class Symbol extends Base {
     constructor(
         name: string
@@ -125,5 +125,75 @@ export class Symbol extends Base {
 
     accept<T>(visitor: ExpressionVisitor<T>): T {
         return visitor.visitSymbol(this);
+    }
+}
+
+export class Parameter extends Base {
+    constructor(
+        name: string,
+        type: Type
+    ) {
+        super('Parameter', [name, type]);
+    }
+
+    get name() {
+        return <string>this.value[0];
+    }
+
+    get type() {
+        return <Type>this.value[1];
+    }
+
+    accept<T>(visitor: ExpressionVisitor<T>): T {
+        return visitor.visitParameter(this);
+    }
+}
+
+export class Function extends Base {
+    constructor(
+        public parameters: Parameter[],
+        public expression: Expression
+    ) {
+        super('Function', '');
+        if (expression instanceof NativeCode) {
+            expression.wrapper = this;
+        }
+    }
+
+    accept<T>(visitor: ExpressionVisitor<T>): T {
+        return visitor.visitFunction(this);
+    }
+}
+
+export class FunctionCall extends Base {
+    constructor(
+        public name: string,
+        public parameters: Expression[]
+    ) { 
+        super('FunctionCall', '');
+    }
+
+    accept<T>(visitor: ExpressionVisitor<T>): T {
+        return visitor.visitFunctionCall(this);
+    }
+}
+
+export interface NativeCodeCallback {
+    (parameters: Value[]): Value;
+}
+
+export class NativeCode extends Base {
+
+    public wrapper: Function;
+
+    constructor(
+        public resultType: Type,
+        public callback: NativeCodeCallback
+    ) {
+        super('NativeCode', '');
+    }
+
+    accept<T>(visitor: ExpressionVisitor<T>): T {
+        return visitor.visitNativeCode(this);
     }
 }

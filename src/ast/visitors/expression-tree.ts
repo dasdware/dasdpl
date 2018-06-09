@@ -8,7 +8,6 @@ export function expressionToTree(expression: Expressions.Expression) {
 }
 
 class AsciiTreeVisitor implements ExpressionVisitor<string> {
-
     private level = 0;
 
     private prefix() {
@@ -65,6 +64,22 @@ class AsciiTreeVisitor implements ExpressionVisitor<string> {
     }
 
     visitSymbol(expression: Expressions.Symbol) {
-        return `${this.prefix()}Symbol<${expression.name}>\n`;   
+        return `${this.prefix()}Symbol<${expression.name}>\n`; 
+    }
+
+    visitFunction(expression: Expressions.Function) {
+        return `${this.prefix()}Function\n`;   
+    }
+
+    visitFunctionCall(expression: Expressions.FunctionCall) {
+        return '';
+    }
+
+    visitNativeCode(expression: Expressions.NativeCode): string {
+        return `${this.prefix()}NativeCode\n`;
+    }
+
+    visitParameter(expressin: Expressions.Parameter): string {
+        return `${this.prefix()}Parameter\n`;
     }
 }
