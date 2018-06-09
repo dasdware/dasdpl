@@ -8,10 +8,6 @@ export function calculateValue(expression: Expressions.Expression, symbolTable: 
     return expression.accept(new ValueInfoVisitor(symbolTable));
 }
 
-export function calculateType(expression: Expressions.Expression, symbolTable: SymbolTable) {
-    return calculateValue(expression, symbolTable).type;
-}
-
 class ValueInfoVisitor implements ExpressionVisitor<Values.Value> {
     
     constructor(
@@ -74,20 +70,24 @@ class ValueInfoVisitor implements ExpressionVisitor<Values.Value> {
         for (let i = 0; i < func.parameters.length; ++i) {
             this._symbolTable.put(func.parameters[i].name, expression.parameters[i]);
         }
-        this._symbolTable.put('#currentFunction', func);
 
         try {
             return func.expression.accept(this);
         } finally {
             this._symbolTable = this._symbolTable.parent;
         }
-        
     }
 
-    visitNativeFunction(expression: Expressions.NativeFunction): Values.Value {
-        const func = this._symbolTable.get('#currentFunction') as Expressions.Function;
-        return new Values.NumberValue(0);
+    visitNativeCode(expression: Expressions.NativeCode): Values.Value {
+        const params: Values.Value[] = [];
+        for (let param of expression.wrapper.parameters) {
+            params.push(
+                calculateValue(this._symbolTable.get(param.name), this._symbolTable));
+        }
+        return expression.callback(params);
     }
 
-
+    visitParameter(expression: Expressions.Parameter): Values.Value {
+        return null;
+    }
 }

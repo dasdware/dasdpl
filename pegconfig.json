@@ -1,5 +1,5 @@
 {
     "tspegjs": {
-        "customHeader": "// import expressions and commands\nimport * as Expressions from '../ast/expressions';\nimport * as Commands from '../ast/commands';\nimport * as Types from '../ast/types';\nimport { calculateType } from '../ast/visitors/value-calculator';\nimport { SymbolTable } from '../symbol-table';"
+        "customHeader": "// import expressions and commands\nimport * as Expressions from '../ast/expressions';\nimport * as Commands from '../ast/commands';\nimport * as Types from '../ast/types';\nimport { calculateType } from '../ast/visitors/type-calculator';\nimport { SymbolTable } from '../symbol-table';"
     }
 }       

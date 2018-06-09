@@ -3,7 +3,7 @@ import {Type} from './types';
 import { Value } from './values';
 
 export interface Expression {    
-    type: string;
+    typeCaption: string;
     value: any;
 
     accept<T>(visitor: ExpressionVisitor<T>): T;
@@ -11,15 +11,14 @@ export interface Expression {
 
 abstract class Base implements Expression {
 
-
     constructor(
-        private _type: string,
+        private _typeCaption: string,
         private _value: any
     ) {}
 
     
-    get type() {
-        return this._type;
+    get typeCaption() {
+        return this._typeCaption;
     }
 
     get value() {
@@ -129,11 +128,25 @@ export class Symbol extends Base {
     }
 }
 
-export class Parameter {
+export class Parameter extends Base {
     constructor(
-        public name: string,
-        public type: Type
-    ) {}
+        name: string,
+        type: Type
+    ) {
+        super('Parameter', [name, type]);
+    }
+
+    get name() {
+        return <string>this.value[0];
+    }
+
+    get type() {
+        return <Type>this.value[1];
+    }
+
+    accept<T>(visitor: ExpressionVisitor<T>): T {
+        return visitor.visitParameter(this);
+    }
 }
 
 export class Function extends Base {
@@ -142,6 +155,9 @@ export class Function extends Base {
         public expression: Expression
     ) {
         super('Function', '');
+        if (expression instanceof NativeCode) {
+            expression.wrapper = this;
+        }
     }
 
     accept<T>(visitor: ExpressionVisitor<T>): T {
@@ -162,19 +178,22 @@ export class FunctionCall extends Base {
     }
 }
 
-export interface NativeFunctionCallback {
+export interface NativeCodeCallback {
     (parameters: Value[]): Value;
 }
 
-export class NativeFunction extends Base {
+export class NativeCode extends Base {
+
+    public wrapper: Function;
+
     constructor(
-        public callback: NativeFunctionCallback
+        public resultType: Type,
+        public callback: NativeCodeCallback
     ) {
-        super('NativeFunction', '');
+        super('NativeCode', '');
     }
 
-
     accept<T>(visitor: ExpressionVisitor<T>): T {
-        throw new Error("Method not implemented.");
+        return visitor.visitNativeCode(this);
     }
 }

@@ -1,10 +1,11 @@
 import { SymbolTable } from './symbol-table';
 import { Parser } from './parser/parser';
 
-import { Number, Function, Parameter, Add, Symbol } from './ast/expressions';
+import { Number, Function, Parameter, Add, Symbol, NativeCode } from './ast/expressions';
 import { Command, ExpressionCommand, CommandHandler, ErrorCommand, 
     ExitCommand, ExplainCommand, SymbolsCommand, LetCommand } from './ast/commands';
 import { NumberType } from './ast/types/number';
+import { Value, NumberValue } from './ast/values';
 
 function createDefaultSymbolTable() {
     const symbolTable = new SymbolTable();
@@ -18,6 +19,18 @@ function createDefaultSymbolTable() {
             new Add(
                 new Symbol('a'),
                 new Symbol('b')
+            )
+        )
+    );
+    symbolTable.put('sin',
+        new Function(
+            [
+                new Parameter('value', NumberType.getInstance())
+            ],
+            new NativeCode(
+                NumberType.getInstance(),
+                (parameters: Value[])  => 
+                    new NumberValue(Math.sin(parameters[0].content))
             )
         )
     );

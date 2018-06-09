@@ -72,7 +72,7 @@ SymbolOrFunctionCall
 
       // check if the symbol resolves to a function
       const targetFunction = options.symbolTable.get(symbol.name);
-      if (targetFunction.type !== 'Function') {
+      if (targetFunction.typeCaption !== 'Function') {
         error(`${symbol.name} is not a function`);
       }
 

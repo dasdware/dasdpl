@@ -8,9 +8,6 @@ export function expressionToTree(expression: Expressions.Expression) {
 }
 
 class AsciiTreeVisitor implements ExpressionVisitor<string> {
-    visitNativeFunction(expression: Expressions.NativeFunction): string {
-        throw new Error("Method not implemented.");
-    }
     private level = 0;
 
     private prefix() {
@@ -76,5 +73,13 @@ class AsciiTreeVisitor implements ExpressionVisitor<string> {
 
     visitFunctionCall(expression: Expressions.FunctionCall) {
         return '';
+    }
+
+    visitNativeCode(expression: Expressions.NativeCode): string {
+        return `${this.prefix()}NativeCode\n`;
+    }
+
+    visitParameter(expressin: Expressions.Parameter): string {
+        return `${this.prefix()}Parameter\n`;
     }
 }

@@ -1,7 +1,7 @@
 import { Type } from "../types";
 import { Parameter, Expression, Function } from "../expressions";
 import { Value, FunctionValue } from "../values";
-import { calculateType } from '../visitors/value-calculator';
+import { calculateType } from '../visitors/type-calculator';
 import { SymbolTable } from "../../symbol-table";
 
 export class FunctionType implements Type {
@@ -39,6 +39,7 @@ export class FunctionType implements Type {
 
 
     static getInstance(parameters: Parameter[], expression: Expression, symbolTable: SymbolTable) {
-        return new FunctionType(parameters, calculateType(expression, symbolTable));
+        return new FunctionType(parameters, 
+            calculateType(new Function(parameters, expression), symbolTable));
     }
 }
