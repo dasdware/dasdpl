@@ -4,7 +4,6 @@ import { Value } from './values';
 
 export interface Expression {    
     typeCaption: string;
-    value: any;
 
     accept<T>(visitor: ExpressionVisitor<T>): T;
 }
@@ -13,7 +12,6 @@ abstract class Base implements Expression {
 
     constructor(
         private _typeCaption: string,
-        private _value: any
     ) {}
 
     
@@ -21,18 +19,14 @@ abstract class Base implements Expression {
         return this._typeCaption;
     }
 
-    get value() {
-        return this._value;
-    }
-
     abstract accept<T>(visitor: ExpressionVisitor<T>): T;
 }
 
 export class Number extends Base {
     constructor(
-        value: any
+        public value: number
     ) {
-        super('Number', value);
+        super('Number');
     }
 
     accept<T>(visitor: ExpressionVisitor<T>): T {
@@ -43,18 +37,10 @@ export class Number extends Base {
 export abstract class Binary extends Base {
     constructor(
         operation: string,
-        left: Expression,
-        right: Expression
+        public left: Expression,
+        public right: Expression
     ) {
-        super(operation, [left, right]);
-    }
-
-    get left() {
-        return <Expression>this.value[0];
-    }
-
-    get right() {
-        return <Expression>this.value[1];
+        super(operation);
     }
 }
 
@@ -114,13 +100,9 @@ export class Divide extends Binary {
 
 export class Symbol extends Base {
     constructor(
-        name: string
+        public name: string
     ) {
-        super('Symbol', name);
-    }
-
-    get name() {
-        return <string>this.value;
+        super('Symbol');
     }
 
     accept<T>(visitor: ExpressionVisitor<T>): T {
@@ -130,18 +112,10 @@ export class Symbol extends Base {
 
 export class Parameter extends Base {
     constructor(
-        name: string,
-        type: Type
+        public name: string,
+        public type: Type
     ) {
-        super('Parameter', [name, type]);
-    }
-
-    get name() {
-        return <string>this.value[0];
-    }
-
-    get type() {
-        return <Type>this.value[1];
+        super('Parameter');
     }
 
     accept<T>(visitor: ExpressionVisitor<T>): T {
@@ -154,7 +128,7 @@ export class Function extends Base {
         public parameters: Parameter[],
         public expression: Expression
     ) {
-        super('Function', '');
+        super('Function');
         if (expression instanceof NativeCode) {
             expression.wrapper = this;
         }
@@ -170,7 +144,7 @@ export class FunctionCall extends Base {
         public name: string,
         public parameters: Expression[]
     ) { 
-        super('FunctionCall', '');
+        super('FunctionCall');
     }
 
     accept<T>(visitor: ExpressionVisitor<T>): T {
@@ -190,7 +164,7 @@ export class NativeCode extends Base {
         public resultType: Type,
         public callback: NativeCodeCallback
     ) {
-        super('NativeCode', '');
+        super('NativeCode');
     }
 
     accept<T>(visitor: ExpressionVisitor<T>): T {
