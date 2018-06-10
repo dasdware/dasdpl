@@ -43,7 +43,7 @@ Term
 
 Factor
   = "(" _ expr:Expression _ ")" { return expr; }
-  / Integer
+  / Number
   / SymbolOrFunctionCall
 
 Symbol
@@ -126,8 +126,8 @@ FunctionDefinition
       }
     }
 
-Integer "integer"
-  = [0-9]+ { return new Expressions.Number(parseInt(text(), 10)); }
+Number "number"
+  = [0-9]+('.'[0-9]+)? { return new Expressions.Number(parseFloat(text())); }
 
 Ident "ident"
   = [a-zA-Z_][0-9a-zA-Z_]* { return text(); }
