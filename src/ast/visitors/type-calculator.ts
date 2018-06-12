@@ -3,6 +3,9 @@ import { Type } from '../types';
 import { ExpressionVisitor } from '../visitors';
 import { NumberType } from '../types/number';
 import { SymbolTable } from '../../symbol-table';
+import { BooleanType } from '../types/boolean';
+import { areCompatible, areComparisonCompatible,
+    areCalculationCompatible, combineTypes, areEqualityCompatible } from '../types/checks';
 
 export function calculateType(expression: Expressions.Expression,
      symbolTable: SymbolTable)  {
@@ -15,48 +18,96 @@ class TypeInfoVisitor implements ExpressionVisitor<Type> {
         private _symbols: SymbolTable
     ) {}
 
-    private areCalculationCompatible(left: Type, right: Type) {
-        return (left instanceof NumberType) && (right instanceof NumberType);
-    }
+    private checkEquality(equality: Expressions.Binary) {
+        const leftType = equality.left.accept(this);
+        const rightType = equality.right.accept(this);
 
-    private areCompatible(left: Type, right: Type) {
-        return (left instanceof NumberType) && (right instanceof NumberType);
-    }
-
-    private combineTypes(leftType: Type, rightType: Type) {
-        return leftType;
-    }
-
-    private checkTypes(left: Expressions.Expression, right: Expressions.Expression) {
-        const leftType = left.accept(this);
-        const rightType = right.accept(this);
-
-        if (this.areCalculationCompatible(leftType, rightType)) {
-            return this.combineTypes(leftType, rightType);
+        if (areEqualityCompatible(leftType, rightType)) {
+            return combineTypes(leftType, rightType);
         } else {
             throw new Error(`Incompatible types: ${leftType.name} and ${rightType.name}`);
         }
     }
 
+    private checkComparison(comparison: Expressions.Binary) {
+        const leftType = comparison.left.accept(this);
+        const rightType = comparison.right.accept(this);
+
+        if (areComparisonCompatible(leftType, rightType)) {
+            return combineTypes(leftType, rightType);
+        } else {
+            throw new Error(`Incompatible types: ${leftType.name} and ${rightType.name}`);
+        }
+    }
+
+    private checkCalculation(calculation: Expressions.Binary) {
+        const leftType = calculation.left.accept(this);
+        const rightType = calculation.right.accept(this);
+
+        if (areCalculationCompatible(leftType, rightType)) {
+            return combineTypes(leftType, rightType);
+        } else {
+            throw new Error(`Incompatible types: ${leftType.name} and ${rightType.name}`);
+        }
+    }
+
+    // equality
+
+    visitEqual(expression: Expressions.Equal) {
+        return this.checkEquality(expression);
+    }
+
+    visitNotEqual(expression: Expressions.NotEqual) {
+        return this.checkEquality(expression);
+    }
+
+    // comparison
+
+    visitLess(expression: Expressions.Less) {
+        return this.checkComparison(expression);
+    }
+
+    visitLessOrEqual(expression: Expressions.LessOrEqual) {
+        return this.checkComparison(expression);
+    }
+
+    visitGreater(expression: Expressions.Greater) {
+        return this.checkComparison(expression);
+    }
+
+    visitGreaterOrEqual(expression: Expressions.GreaterOrEqual) {
+        return this.checkComparison(expression);
+    }
+
+    // multiplication
+
+    visitMultiply(expression: Expressions.Multiply): Type {
+        return this.checkCalculation(expression);
+    }
+
+    visitDivide(expression: Expressions.Divide): Type {
+        return this.checkCalculation(expression);
+    }
+
+    // addition
+
+    visitAdd(expression: Expressions.Add): Type {
+        return this.checkCalculation(expression);
+    }
+
+    visitSubtract(expression: Expressions.Subtract): Type {
+        return this.checkCalculation(expression);
+    }
+
+    // primaries
+
     visitNumber(expression: Expressions.Number): Type {
         return NumberType.getInstance();
     }
 
-    visitAdd(expression: Expressions.Add): Type {
-        return this.checkTypes(expression.left, expression.right);
-    }
-
-    visitSubtract(expression: Expressions.Subtract): Type {
-        return this.checkTypes(expression.left, expression.right);
-    }
-
-    visitMultiply(expression: Expressions.Multiply): Type {
-        return this.checkTypes(expression.left, expression.right);
-    }
-
-    visitDivide(expression: Expressions.Divide): Type {
-        return this.checkTypes(expression.left, expression.right);
-    }
+    visitBoolean(expression: Expressions.Boolean): Type {
+        return BooleanType.getInstance();
+    }    
 
     visitSymbol(expression: Expressions.Symbol): Type {
         let target = this._symbols.get(expression.name);
@@ -65,18 +116,6 @@ class TypeInfoVisitor implements ExpressionVisitor<Type> {
         }
 
         return target.accept(this);
-    }
-
-    visitFunction(expression: Expressions.Function): Type {
-        this._symbols = new SymbolTable(this._symbols);
-        try {
-            for (let parameter of expression.parameters) {
-                this._symbols.put(parameter.name, parameter);
-            }
-            return expression.expression.accept(this);
-        } finally {
-            this._symbols = this._symbols.parent;
-        }        
     }
 
     visitFunctionCall(expression: Expressions.FunctionCall): Type {
@@ -93,7 +132,7 @@ class TypeInfoVisitor implements ExpressionVisitor<Type> {
             (param, index) => {
                 let expectedType: Type = param.accept(this);
                 let actualType: Type = expression.parameters[index].accept(this);
-                if (!this.areCompatible(expectedType, actualType)) {
+                if (!areCompatible(expectedType, actualType)) {
                     throw new Error(`Incompatible types '${actualType.name}' and '${expectedType.name}'`);
                 }
         })
@@ -101,8 +140,22 @@ class TypeInfoVisitor implements ExpressionVisitor<Type> {
         return this.visitFunction(func);
     }
 
+    // functions
+
     visitParameter(expression: Expressions.Parameter): Type {
         return expression.type;  
+    }
+
+    visitFunction(expression: Expressions.Function): Type {
+        this._symbols = new SymbolTable(this._symbols);
+        try {
+            for (let parameter of expression.parameters) {
+                this._symbols.put(parameter.name, parameter);
+            }
+            return expression.expression.accept(this);
+        } finally {
+            this._symbols = this._symbols.parent;
+        }        
     }
 
     visitNativeCode(expression: Expressions.NativeCode): Type {

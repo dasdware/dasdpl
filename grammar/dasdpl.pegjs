@@ -25,25 +25,74 @@ RootExpression =
   / Expression
 
 Expression
-  = head:Term tail:(_ ("+" / "-") _ Term)* {
-      const num = tail.reduce(function(result, element) {
-        if (element[1] === "+") { return new Expressions.Add(result, element[3]); }
-        if (element[1] === "-") { return new Expressions.Subtract(result, element[3]); }
-      }, head);
-      return num;
+  = Equality
+
+Equality
+  = head:Comparison tail:(_ ("==" / "!=") _ Comparison)* {
+      return tail.reduce(
+        (result, element) => {
+          if (element[1] === "==") { 
+            return new Expressions.Equal(result, element[3]); 
+          }
+          if (element[1] === "!=") { 
+            return new Expressions.NotEqual(result, element[3]); 
+          }
+        }, 
+        head);
     }
 
-Term
-  = head:Factor tail:( _ ("*" / "/") _ Factor)* {
-      return tail.reduce(function(result, element) {
-        if (element[1] === "*") { return new Expressions.Multiply(result, element[3]); }
-        if (element[1] === "/") { return new Expressions.Divide(result, element[3]); }
-      }, head);
+Comparison
+  = head:Addition tail:(_ ("<" / "<=" / ">" / ">=") _ Addition)* {
+      return tail.reduce(
+        (result, element) => {
+          if (element[1] === "<") { 
+            return new Expressions.Less(result, element[3]); 
+          }
+          if (element[1] === "<=") { 
+            return new Expressions.LessOrEqual(result, element[3]); 
+          }
+          if (element[1] === ">") { 
+            return new Expressions.Greater(result, element[3]); 
+          }
+          if (element[1] === ">=") { 
+            return new Expressions.GreaterOrEqual(result, element[3]); 
+          }
+        }, 
+        head);
     }
 
-Factor
+Addition
+  = head:Multiplication tail:(_ ("+" / "-") _ Multiplication)* {
+      return tail.reduce(
+        (result, element) => {
+          if (element[1] === "+") { 
+            return new Expressions.Add(result, element[3]); 
+          }
+          if (element[1] === "-") { 
+            return new Expressions.Subtract(result, element[3]); 
+          }
+        }, 
+        head);
+    }
+
+Multiplication
+  = head:Primary tail:( _ ("*" / "/") _ Primary)* {
+      return tail.reduce(
+        (result, element) => {
+          if (element[1] === "*") { 
+              return new Expressions.Multiply(result, element[3]); 
+          }
+          if (element[1] === "/") { 
+            return new Expressions.Divide(result, element[3]); 
+          }
+        }, 
+        head);
+    }
+
+Primary
   = "(" _ expr:Expression _ ")" { return expr; }
   / Number
+  / Boolean
   / SymbolOrFunctionCall
 
 Symbol
@@ -128,6 +177,9 @@ FunctionDefinition
 
 Number "number"
   = [0-9]+('.'[0-9]+)? { return new Expressions.Number(parseFloat(text())); }
+
+Boolean "boolean"
+  = ("true" / "false") { return new Expressions.Boolean(text() === "true") }
 
 Ident "ident"
   = [a-zA-Z_][0-9a-zA-Z_]* { return text(); }
