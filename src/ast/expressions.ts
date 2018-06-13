@@ -22,18 +22,6 @@ abstract class Base implements Expression {
     abstract accept<T>(visitor: ExpressionVisitor<T>): T;
 }
 
-export class Number extends Base {
-    constructor(
-        public value: number
-    ) {
-        super('Number');
-    }
-
-    accept<T>(visitor: ExpressionVisitor<T>): T {
-        return visitor.visitNumber(this);
-    }
-}
-
 export abstract class Binary extends Base {
     constructor(
         operation: string,
@@ -43,6 +31,96 @@ export abstract class Binary extends Base {
         super(operation);
     }
 }
+
+// =======================================================================
+// EQUALITY
+// =======================================================================
+
+export class Equal extends Binary {
+    constructor(
+        left: Expression,
+        right: Expression
+    ) {
+        super('Equal', left, right);
+    }
+
+    accept<T>(visitor: ExpressionVisitor<T>): T {
+        return visitor.visitEqual(this);
+    }
+}
+
+export class NotEqual extends Binary {
+    constructor(
+        left: Expression,
+        right: Expression
+    ) {
+        super('NotEqual', left, right);
+    }
+
+    accept<T>(visitor: ExpressionVisitor<T>): T {
+        return visitor.visitNotEqual(this);
+    }
+}
+
+// =======================================================================
+// COMPARISON
+// =======================================================================
+
+export class Less extends Binary {
+    constructor(
+        left: Expression,
+        right: Expression
+    ) {
+        super('Less', left, right);
+    }
+
+    accept<T>(visitor: ExpressionVisitor<T>): T {
+        return visitor.visitLess(this);
+    }
+}
+
+export class LessOrEqual extends Binary {
+    constructor(
+        left: Expression,
+        right: Expression
+    ) {
+        super('LessOrEqual', left, right);
+    }
+
+    accept<T>(visitor: ExpressionVisitor<T>): T {
+        return visitor.visitLessOrEqual(this);
+    }
+}
+
+export class Greater extends Binary {
+    constructor(
+        left: Expression,
+        right: Expression
+    ) {
+        super('Greater', left, right);
+    }
+
+    accept<T>(visitor: ExpressionVisitor<T>): T {
+        return visitor.visitGreater(this);
+    }
+}
+
+export class GreaterOrEqual extends Binary {
+    constructor(
+        left: Expression,
+        right: Expression
+    ) {
+        super('GreaterOrEqual', left, right);
+    }
+
+    accept<T>(visitor: ExpressionVisitor<T>): T {
+        return visitor.visitGreaterOrEqual(this);
+    }
+}
+
+// =======================================================================
+// ADDITION
+// =======================================================================
 
 export class Add extends Binary {
     constructor(
@@ -70,6 +148,9 @@ export class Subtract extends Binary {
     }
 }
 
+// =======================================================================
+// MULTIPLICATION
+// =======================================================================
 
 export class Multiply extends Binary {
     constructor(
@@ -84,7 +165,6 @@ export class Multiply extends Binary {
     }
 }
 
-
 export class Divide extends Binary {
     constructor(
         left: Expression,
@@ -95,6 +175,34 @@ export class Divide extends Binary {
 
     accept<T>(visitor: ExpressionVisitor<T>): T {
         return visitor.visitDivide(this);
+    }
+}
+
+// =======================================================================
+// PRIMARIES
+// =======================================================================
+
+export class Number extends Base {
+    constructor(
+        public value: number
+    ) {
+        super('Number');
+    }
+
+    accept<T>(visitor: ExpressionVisitor<T>): T {
+        return visitor.visitNumber(this);
+    }
+}
+
+export class Boolean extends Base {
+    constructor(
+        public value: boolean
+    ) {
+        super('Boolean');
+    }
+
+    accept<T>(visitor: ExpressionVisitor<T>): T {
+        return visitor.visitBoolean(this);
     }
 }
 
@@ -109,6 +217,23 @@ export class Symbol extends Base {
         return visitor.visitSymbol(this);
     }
 }
+
+export class FunctionCall extends Base {
+    constructor(
+        public name: string,
+        public parameters: Expression[]
+    ) { 
+        super('FunctionCall');
+    }
+
+    accept<T>(visitor: ExpressionVisitor<T>): T {
+        return visitor.visitFunctionCall(this);
+    }
+}
+
+// =======================================================================
+// FUNCTIONS
+// =======================================================================
 
 export class Parameter extends Base {
     constructor(
@@ -136,19 +261,6 @@ export class Function extends Base {
 
     accept<T>(visitor: ExpressionVisitor<T>): T {
         return visitor.visitFunction(this);
-    }
-}
-
-export class FunctionCall extends Base {
-    constructor(
-        public name: string,
-        public parameters: Expression[]
-    ) { 
-        super('FunctionCall');
-    }
-
-    accept<T>(visitor: ExpressionVisitor<T>): T {
-        return visitor.visitFunctionCall(this);
     }
 }
 

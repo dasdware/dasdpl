@@ -3,6 +3,7 @@ import { Type } from "./types";
 import { NumberType } from './types/number';
 import { FunctionType } from './types/function';
 import { SymbolTable } from "../symbol-table";
+import { BooleanType } from "./types/boolean";
 
 export interface Value {
     type: Type;
@@ -27,6 +28,14 @@ export class NumberValue extends BaseValue {
         public content: number
     ) { 
         super(NumberType.getInstance(), content);
+    }
+}
+
+export class BooleanValue extends BaseValue {
+    constructor(
+        public content: boolean
+    ) {
+        super(BooleanType.getInstance(), content);
     }
 }
 
