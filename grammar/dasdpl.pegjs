@@ -163,7 +163,7 @@ FunctionDefinition
   = parameters:("(" _ parameters:ParameterList? _ ")"  {
         options.symbolTable = new SymbolTable(options.symbolTable);
         for (let param of parameters) {
-          options.symbolTable.put(param.name, param.type.defaultValue);
+          options.symbolTable.put(param.name, param);
         }
         return parameters;
       })  

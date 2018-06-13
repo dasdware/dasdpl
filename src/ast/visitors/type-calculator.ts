@@ -23,7 +23,7 @@ class TypeInfoVisitor implements ExpressionVisitor<Type> {
         const rightType = equality.right.accept(this);
 
         if (areEqualityCompatible(leftType, rightType)) {
-            return combineTypes(leftType, rightType);
+            return BooleanType.getInstance();
         } else {
             throw new Error(`Incompatible types: ${leftType.name} and ${rightType.name}`);
         }
@@ -34,7 +34,7 @@ class TypeInfoVisitor implements ExpressionVisitor<Type> {
         const rightType = comparison.right.accept(this);
 
         if (areComparisonCompatible(leftType, rightType)) {
-            return combineTypes(leftType, rightType);
+            return BooleanType.getInstance();
         } else {
             throw new Error(`Incompatible types: ${leftType.name} and ${rightType.name}`);
         }

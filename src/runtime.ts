@@ -5,7 +5,8 @@ import { Number, Function, Parameter, Add, Symbol, NativeCode } from './ast/expr
 import { Command, ExpressionCommand, CommandHandler, ErrorCommand, 
     ExitCommand, ExplainCommand, SymbolsCommand, LetCommand } from './ast/commands';
 import { NumberType } from './ast/types/number';
-import { Value, NumberValue } from './ast/values';
+import { Value, NumberValue, BooleanValue } from './ast/values';
+import { BooleanType } from './ast/types/boolean';
 
 function createDefaultSymbolTable() {
     const symbolTable = new SymbolTable();
@@ -31,6 +32,22 @@ function createDefaultSymbolTable() {
                 NumberType.getInstance(),
                 (parameters: Value[])  => 
                     new NumberValue(Math.sin(parameters[0].content))
+            )
+        )
+    );
+    symbolTable.put('if',
+        new Function(
+            [
+                new Parameter('condition', BooleanType.getInstance()),
+                new Parameter('then', NumberType.getInstance()),
+                new Parameter('else', NumberType.getInstance())
+            ],
+            new NativeCode(
+                NumberType.getInstance(),
+                (parameters: Value[])  => 
+                    ((parameters[0] as BooleanValue).content) 
+                        ? parameters[1]
+                        : parameters[2]
             )
         )
     );
@@ -89,7 +106,8 @@ export class Runtime {
         try {
             command = this.parser.parse(line);
         } catch (error) {
-            command = new ErrorCommand(error.message, line, error.location.start.offset);
+            command = new ErrorCommand(error.message, line, 
+                (error.location) ? error.location.start.offset : 0);
         }
 
         for (const handler of this._commandHandlers) {
