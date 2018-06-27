@@ -2,8 +2,29 @@ import {ExpressionVisitor} from './visitors';
 import {Type} from './types';
 import { Value } from './values';
 
+export class SourceLocation {
+    constructor(
+        public offset: number,
+        public line: number,
+        public column: number
+    ) { }
+
+    static Empty = new SourceLocation(-1, -1, -1);
+}
+
+export class SourceRange {
+    constructor(
+        public start: SourceLocation,
+        public end: SourceLocation
+    ) {}
+
+    static Empty = new SourceRange(
+        SourceLocation.Empty, SourceLocation.Empty);
+}
+
 export interface Expression {    
     typeCaption: string;
+    range: SourceRange;
 
     accept<T>(visitor: ExpressionVisitor<T>): T;
 }
@@ -12,11 +33,16 @@ abstract class Base implements Expression {
 
     constructor(
         private _typeCaption: string,
+        private _range: SourceRange
     ) {}
 
     
     get typeCaption() {
         return this._typeCaption;
+    }
+
+    get range() {
+        return this._range;
     }
 
     abstract accept<T>(visitor: ExpressionVisitor<T>): T;
@@ -28,7 +54,10 @@ export abstract class Binary extends Base {
         public left: Expression,
         public right: Expression
     ) {
-        super(operation);
+        super(
+            operation,
+            new SourceRange(left.range.start, right.range.end)
+        );
     }
 }
 
@@ -184,9 +213,10 @@ export class Divide extends Binary {
 
 export class Number extends Base {
     constructor(
-        public value: number
+        public value: number,
+        range: SourceRange = SourceRange.Empty
     ) {
-        super('Number');
+        super('Number', range);
     }
 
     accept<T>(visitor: ExpressionVisitor<T>): T {
@@ -196,9 +226,10 @@ export class Number extends Base {
 
 export class Boolean extends Base {
     constructor(
-        public value: boolean
+        public value: boolean,
+        range: SourceRange = SourceRange.Empty
     ) {
-        super('Boolean');
+        super('Boolean', range);
     }
 
     accept<T>(visitor: ExpressionVisitor<T>): T {
@@ -208,9 +239,10 @@ export class Boolean extends Base {
 
 export class Symbol extends Base {
     constructor(
-        public name: string
+        public name: string,
+        range: SourceRange = SourceRange.Empty
     ) {
-        super('Symbol');
+        super('Symbol', range);
     }
 
     accept<T>(visitor: ExpressionVisitor<T>): T {
@@ -221,9 +253,10 @@ export class Symbol extends Base {
 export class FunctionCall extends Base {
     constructor(
         public name: string,
-        public parameters: Expression[]
+        public parameters: Expression[],
+        range: SourceRange = SourceRange.Empty
     ) { 
-        super('FunctionCall');
+        super('FunctionCall', range);
     }
 
     accept<T>(visitor: ExpressionVisitor<T>): T {
@@ -238,9 +271,10 @@ export class FunctionCall extends Base {
 export class Parameter extends Base {
     constructor(
         public name: string,
-        public type: Type
+        public type: Type,
+        range: SourceRange = SourceRange.Empty
     ) {
-        super('Parameter');
+        super('Parameter', range);
     }
 
     accept<T>(visitor: ExpressionVisitor<T>): T {
@@ -251,9 +285,10 @@ export class Parameter extends Base {
 export class Function extends Base {
     constructor(
         public parameters: Parameter[],
-        public expression: Expression
+        public expression: Expression,
+        range: SourceRange = SourceRange.Empty
     ) {
-        super('Function');
+        super('Function', range);
         if (expression instanceof NativeCode) {
             expression.wrapper = this;
         }
@@ -276,7 +311,7 @@ export class NativeCode extends Base {
         public resultType: Type,
         public callback: NativeCodeCallback
     ) {
-        super('NativeCode');
+        super('NativeCode', SourceRange.Empty);
     }
 
     accept<T>(visitor: ExpressionVisitor<T>): T {

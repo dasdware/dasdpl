@@ -100,7 +100,7 @@ Symbol
         if (!options.symbolTable.has(ident)) {
           error(`Unknown symbol '${ident}'`);
         }
-        return new Expressions.Symbol(ident); 
+        return new Expressions.Symbol(ident, location()); 
     }
 
 ExpressionList 
@@ -138,7 +138,7 @@ SymbolOrFunctionCall
         }
       }
 
-      return new Expressions.FunctionCall(symbol.name, params);
+      return new Expressions.FunctionCall(symbol.name, params, location());
     }
   }
 
@@ -150,7 +150,7 @@ Type
 
 Parameter
   = ident:Ident _ ":" _ type:Type {
-    return new Expressions.Parameter(ident, type);
+    return new Expressions.Parameter(ident, type, location());
   }
 
 ParameterList
@@ -169,17 +169,17 @@ FunctionDefinition
       })  
     _ "->" _ expression:Expression {
       try {
-        return new Expressions.Function(parameters, expression);
+        return new Expressions.Function(parameters, expression, location());
       } finally {
         options.symbolTable = options.symbolTable.parent;
       }
     }
 
 Number "number"
-  = [0-9]+('.'[0-9]+)? { return new Expressions.Number(parseFloat(text())); }
+  = [0-9]+('.'[0-9]+)? { return new Expressions.Number(parseFloat(text()), location()); }
 
 Boolean "boolean"
-  = ("true" / "false") { return new Expressions.Boolean(text() === "true") }
+  = ("true" / "false") { return new Expressions.Boolean(text() === "true", location()); }
 
 Ident "ident"
   = [a-zA-Z_][0-9a-zA-Z_]* { return text(); }
